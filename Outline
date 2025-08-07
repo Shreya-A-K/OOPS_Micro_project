@@ -1,0 +1,5 @@
+Main Classes: -3 
+<br>
+Buyer<br> Variables: Buyer_id, cart, username, password<br><br>
+Seller <br> Variables: Seller_id, listed_products, username, password<br><br>
+Product <br> Variables: Variables: Product_id, product_name, product_price, product_desc
