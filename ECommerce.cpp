@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <vector>
 using namespace std;
 
 //Created a class User
@@ -23,6 +24,42 @@ class User{
 
 
 };
+class Product{
+    public:
+        int ProductId,stock;
+        string name,category;
+        double price;
+        Product(int pi,int st,string n,string c, double p){
+                ProductId = pi;
+                name = n;
+                stock = st;
+                cateogory = c;
+                price = p;
+        }
+        void getstring(){
+                return string;
+        }
+        void displayProduct() const {
+                cout<<"\nProduct Id : "<<ProductId<<endl;
+                cout<<"\nCategory : "<<category<<endl;
+                cout<<"\nName of the product : "<<name<<endl;
+                cout<<"\nPrice : "<<price<<endl;
+                cout<<"\nStock : "<<stock<<endl;
+        }
+        void updatePrice(double newPrice) {
+                price = newPrice;
+        }
+        void updateStock(int newStock) {
+                stock = newStock;
+        }
+        int getID() const { return productID; }
+        string getName() const { return name; }
+        double getPrice() const { return price; }
+        int getStock() const { return stock; }
+        string getCategory() const { return category; }
+        
+};
+               
 int User::user_id=0;
 
 
@@ -31,3 +68,4 @@ int main(){
     return 0;
 
 }
+
