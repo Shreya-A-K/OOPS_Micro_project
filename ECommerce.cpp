@@ -22,6 +22,9 @@ class User{
             cout<<"Remember your password for login purposes!!"<<endl;
         }
 
+        //trial to see if changes are getting updated 
+        cout<<hello;
+
 
 };
 class Product{
