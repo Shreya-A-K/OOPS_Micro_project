@@ -8,24 +8,76 @@ class User{
     //declaring all variables
     private:
         string password;
+        static vector<User*> allUsers;
     public:
         static int user_id;
+        
         string username;
         string email;
+        bool loggedIn=false;
 
         //custom default constructor function 
         User(string email, string password){
-            user_id++;
-            username=to_string(user_id)+ email;
-            cout<<"Hello User!"<<endl;
-            cout<<"Your username is :"<<username<<endl;
-            cout<<"Remember your password for login purposes!!"<<endl;
+            
+                for (User * user : allUsers){
+                        if ((*user).email==email){
+                                throw string("Already registered!"); 
+
+                        }
+                }
+                this->user_id=++user_id;
+                allUsers.push_back(this);
+                username=to_string(user_id)+ email;
+                this->email=email;
+                this->password = password;
+                cout<<"Hello User!"<<endl;
+                cout<<"Your username is :"<<username<<endl;
+                cout<<"Remember your password for login purposes!!"<<endl;
         }
 
-        
+        void login(string email, string password){
+            for (User * user: allUsers){
+                if ((*user).email==email && (*user).password==password){
+                        (*user).loggedIn=true;
+                }
+            }
+        }
 
+        void updateProfile(string username, string email){
+                bool is_valid_username=false;
+                for (User * user :allUsers){
+                        if  ((*user).username==username ){
+                                is_valid_username=true;
+                                (*user).email=email;
+                                cout<<"Email Update was successful";
+                                (*user).username=to_string((*user).user_id)+email;
+                                cout<<"Your new username is :"<<(*user).username;
+                        }
+                }
+                if (is_valid_username==false){
+                        throw string("Invalid Username");
+                }
+        }
 
+        void logout(string un){
+                bool valid_action=false;
+                for (User * user:allUsers){
+                        
+                        if ((*user).username==un && (*user).loggedIn==true){
+                                valid_action=true;
+                                (*user).loggedIn=false;
+                                cout<<"Logged out successfully!!";
+                        }
+                }
+                if (valid_action==false){
+                        throw string("Invalid action!!");
+                }
+        }
 };
+
+int User::user_id=0;
+vector <User*> User::allUsers={};
+
 class Product{
     public:
         int ProductId,stock;
@@ -35,7 +87,7 @@ class Product{
                 ProductId = pi;
                 name = n;
                 stock = st;
-                cateogory = c;
+                category = c;
                 price = p;
         }
         void getstring(){
@@ -54,7 +106,7 @@ class Product{
         void updateStock(int newStock) {
                 stock = newStock;
         }
-        int getID() const { return productID; }
+        int getID() const { return ProductId; }
         string getName() const { return name; }
         double getPrice() const { return price; }
         int getStock() const { return stock; }
@@ -62,11 +114,16 @@ class Product{
         
 };
                
-int User::user_id=0;
+
 
 
 int main(){
-    User user1("em","pw");
+    try{
+        User user1("em","pw");
+    }
+    catch(string e){
+                cerr<<"Error:"<<e<<endl;
+        }
     return 0;
 
 }
