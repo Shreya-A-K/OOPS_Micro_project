@@ -5,7 +5,7 @@
 #include <stdexcept>
 using namespace std;
 
-// ========================== MEMBER 1: USER BASE CLASS ==========================
+//USER BASE CLASS 
 class User {
 protected:
     string username;
@@ -18,10 +18,9 @@ public:
     string getUsername() { return username; }
     string getPassword() { return password; }
 };
-// ===============================================================================
 
 
-// ========================== MEMBER 2: BUYER CLASS ==============================
+// BUYER CLASS 
 class Buyer : public User {
 public:
     Buyer(string u="", string p=""): User(u,p,"buyer") {}
@@ -35,10 +34,10 @@ public:
         }
     }
 };
-// ===============================================================================
 
 
-// ========================== MEMBER 3: SELLER CLASS =============================
+
+//SELLER CLASS
 class Seller : public User {
 public:
     Seller(string u="", string p=""): User(u,p,"seller") {}
@@ -46,10 +45,10 @@ public:
     void addProduct(vector<class Product> &products, const string &id, const string &name, double price, int qty);
     void viewProducts(const vector<class Product> &products);
 };
-// ===============================================================================
 
 
-// ========================== MEMBER 4: PRODUCT CLASS ============================
+
+// PRODUCT CLASS
 class Product {
 private:
     string productID;
@@ -82,10 +81,8 @@ void Seller::viewProducts(const vector<Product> &products) {
              << " | Price: " << p.getPrice() << " | Qty: " << p.getStock() << endl;
     }
 }
-// ===============================================================================
 
-
-// ========================== MEMBER 5: CART CLASS ===============================
+// CART CLASS 
 class Cart {
 private:
     struct CartItem {
@@ -143,10 +140,8 @@ public:
         cout << "---------------------\nTotal: " << total << endl;
     }
 };
-// ===============================================================================
 
-
-// ========================== MEMBER 6: PAYMENT CLASSES ==========================
+//PAYMENT CLASSES
 class Payment {
 protected:
     double amount;
@@ -174,10 +169,7 @@ public:
         cout << "UPI Payment of " << amount << " done via " << upiID << endl;
     }
 };
-// ===============================================================================
 
-
-// ========================== MAIN ===============================================
 int main() {
     vector<User> users;
     vector<Product> products;
@@ -257,3 +249,4 @@ int main() {
     }
     return 0;
 }
+
