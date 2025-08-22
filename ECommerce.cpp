@@ -12,11 +12,21 @@ protected:
     string password;
     string role; // "buyer" or "seller"
 public:
-    User(string u="", string p="", string r=""): username(u), password(p), role(r) {}
+    User(string u="", string p="", string r=""){
+        username=u;
+        password=p;
+        role=r;
+    } 
 
-    string getRole() { return role; }
-    string getUsername() { return username; }
-    string getPassword() { return password; }
+    string getRole() { 
+        return role; 
+}
+    string getUsername() { 
+        return username; 
+}
+    string getPassword() {
+         return password; 
+}
 };
 
 
@@ -51,13 +61,19 @@ public:
 // PRODUCT CLASS
 class Product {
 private:
+    static int index;
     string productID;
     string name;
     double price;
     int stock;
 public:
-    Product(string id="", string n="", double p=0, int s=0):
-        productID(id), name(n), price(p), stock(s) {}
+    Product( string n="", double p=0, int s=0){
+        index+=1;
+        productID=to_string(index)+n;
+        name=n;
+        price=p;
+        stock=s;
+    }
 
     string getID() const { return productID; }
     string getName() const { return name; }
@@ -65,6 +81,8 @@ public:
     int getStock() const { return stock; }
     void setStock(int s) { stock = s; }
 };
+
+int Product::index =0;
 
 void Seller::addProduct(vector<Product> &products, const string &id, const string &name, double price, int qty) {
     if (id.empty() || name.empty() || price < 0 || qty <= 0)
