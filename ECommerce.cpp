@@ -1,270 +1,326 @@
 #include <iostream>
-#include <string>
 #include <vector>
-#include <sstream>
+#include <string>
 #include <stdexcept>
 using namespace std;
 
-//USER BASE CLASS 
-class User {
-protected:
-    string username;
-    string password;
-    string role; // "buyer" or "seller"
-public:
-    User(string u="", string p="", string r=""){
-        username=u;
-        password=p;
-        role=r;
-    } 
-
-    string getRole() { 
-        return role; 
-}
-    string getUsername() { 
-        return username; 
-}
-    string getPassword() {
-         return password; 
-}
-};
-
-
-// BUYER CLASS 
-class Buyer : public User {
-public:
-    Buyer(string u="", string p=""): User(u,p,"buyer") {}
-
-    void viewProducts(const vector<class Product> &products) {
-        if (products.empty()) { cout << "No products available.\n"; return; }
-        cout << "\n=== Product List ===\n";
-        for (auto &p : products) {
-            cout << "ID: " << p.getID() << " | " << p.getName() 
-                 << " | Price: " << p.getPrice() << " | Qty: " << p.getStock() << endl;
-        }
-    }
-};
-
-
-
-//SELLER CLASS
-class Seller : public User {
-public:
-    Seller(string u="", string p=""): User(u,p,"seller") {}
-
-    void addProduct(vector<class Product> &products, const string &id, const string &name, double price, int qty);
-    void viewProducts(const vector<class Product> &products);
-};
-
-
-
 // PRODUCT CLASS
-class Product {
-private:
+class Product
+{
     static int index;
     string productID;
     string name;
     double price;
     int stock;
+
 public:
-    Product( string n="", double p=0, int s=0){
-        index+=1;
-        productID=to_string(index)+n;
-        name=n;
-        price=p;
-        stock=s;
+    Product(string n = "", double p = 0, int s = 0)
+    {
+        index += 1;
+        productID = to_string(index) + n; // auto ID
+        name = n;
+        price = p;
+        stock = s;
     }
 
-    string getID() const { return productID; }
-    string getName() const { return name; }
-    double getPrice() const { return price; }
-    int getStock() const { return stock; }
+    string getID() { return productID; }
+    string getName() { return name; }
+    double getPrice() { return price; }
+    int getStock() { return stock; }
+
     void setStock(int s) { stock = s; }
+
+    void showProduct()
+    {
+        cout << "ID: " << productID
+             << " | " << name
+             << " | Price: " << price
+             << " | Stock: " << stock << endl;
+    }
 };
 
-int Product::index =0;
+int Product::index = 0;
 
-void Seller::addProduct(vector<Product> &products, const string &id, const string &name, double price, int qty) {
-    if (id.empty() || name.empty() || price < 0 || qty <= 0)
-        throw runtime_error("Invalid product details.");
-    products.push_back(Product(id, name, price, qty));
-    cout << "Product added successfully.\n";
-}
+// CART CLASS
+class Cart
+{
+    vector<string> productIDs;
+    vector<string> names;
+    vector<double> prices;
+    vector<int> quantities;
 
-void Seller::viewProducts(const vector<Product> &products) {
-    if (products.empty()) { cout << "No products available.\n"; return; }
-    cout << "\n=== Seller Products ===\n";
-    for (auto &p : products) {
-        cout << "ID: " << p.getID() << " | " << p.getName() 
-             << " | Price: " << p.getPrice() << " | Qty: " << p.getStock() << endl;
-    }
-}
-
-// CART CLASS 
-class Cart {
-private:
-    struct CartItem {
-        string productID;
-        string name;
-        double price;
-        int quantity;
-    };
-    vector<CartItem> items;
 public:
-    void addToCart(vector<Product> &products, const string &pid, int qty) {
-        if (pid.empty() || qty <= 0) throw runtime_error("Invalid input.");
+    void addToCart(vector<Product> &products, const string &pid, int qty)
+    {
+        if (pid.empty() || qty <= 0)
+        {
+            throw runtime_error("Invalid input.");
+        }
 
         int idx = -1;
-        for (size_t i=0; i<products.size(); i++)
-            if (products[i].getID() == pid) { idx = i; break; }
+        for (size_t i = 0; i < products.size(); i++)
+            if (products[i].getID() == pid)
+            {
+                idx = i;
+                break;
+            }
+
         if (idx == -1) throw runtime_error("Product not found.");
         if (products[idx].getStock() < qty) throw runtime_error("Insufficient stock.");
 
         products[idx].setStock(products[idx].getStock() - qty);
 
-        CartItem ci{products[idx].getID(), products[idx].getName(), products[idx].getPrice(), qty};
-        items.push_back(ci);
-        cout << ci.name << " x" << qty << " added to cart.\n";
+        productIDs.push_back(products[idx].getID());
+        names.push_back(products[idx].getName());
+        prices.push_back(products[idx].getPrice());
+        quantities.push_back(qty);
+
+        cout << names.back() << " x" << qty << " added to cart.\n";
     }
 
-    void showCart() {
-        if (items.empty()) { cout << "Cart is empty.\n"; return; }
+    void showCart()
+    {
+        if (productIDs.empty())
+        {
+            cout << "Cart is empty.\n";
+            return;
+        }
         cout << "\n=== Cart Items ===\n";
-        for (auto &it : items) {
-            cout << "ID: " << it.productID << " | " << it.name 
-                 << " | Price: " << it.price << " | Qty: " << it.quantity << endl;
+        for (size_t i = 0; i < productIDs.size(); i++)
+        {
+            cout << "ID: " << productIDs[i]
+                 << " | " << names[i]
+                 << " | Price: " << prices[i]
+                 << " | Qty: " << quantities[i] << endl;
         }
     }
 
-    double totalAmount() {
-        double t=0;
-        for (auto &it : items) t += it.price * it.quantity;
+    double totalAmount()
+    {
+        double t = 0;
+        for (size_t i = 0; i < prices.size(); i++)
+            t += prices[i] * quantities[i];
         return t;
     }
 
-    bool empty() const { return items.empty(); }
+    bool empty() const { return productIDs.empty(); }
 
-    void clear() { items.clear(); }
+    void clear()
+    {
+        productIDs.clear();
+        names.clear();
+        prices.clear();
+        quantities.clear();
+    }
 
-    void printBill(const string &buyer) {
-        if (items.empty()) throw runtime_error("Cart empty.");
+    void printBill(const string &buyer)
+    {
+        if (productIDs.empty()) throw runtime_error("Cart empty.");
         cout << "\n----- BILL for " << buyer << " -----\n";
-        double total=0;
-        for (auto &it : items) {
-            double sub = it.price * it.quantity;
-            cout << it.name << " | " << it.quantity << " x " << it.price << " = " << sub << endl;
+        double total = 0;
+        for (size_t i = 0; i < productIDs.size(); i++)
+        {
+            double sub = prices[i] * quantities[i];
+            cout << names[i] << " | " << quantities[i]
+                 << " x " << prices[i] << " = " << sub << endl;
             total += sub;
         }
         cout << "---------------------\nTotal: " << total << endl;
     }
 };
 
-//PAYMENT CLASSES
-class Payment {
+// USER CLASS
+class User
+{
 protected:
-    double amount;
-public:
-    Payment(double a=0): amount(a) {}
-    virtual void pay() { cout << "Processing payment...\n"; }
-};
+    string username;
+    string password;
 
-class CreditCardPayment : public Payment {
-    string cardNumber;
 public:
-    CreditCardPayment(double amt, string card): Payment(amt), cardNumber(card) {}
-    void pay() override {
-        if (cardNumber.size() < 8) throw runtime_error("Invalid card number.");
-        cout << "Credit Card Payment of " << amount << " done using " << cardNumber << endl;
+    User(string u = "", string p = "") : username(u), password(p) {}
+
+    string getUsername() { return username; }
+
+    bool login(string u, string p)
+    {
+        return (username == u && password == p);
     }
 };
 
-class UPIPayment : public Payment {
-    string upiID;
+// SELLER CLASS
+class Seller : public User
+{
 public:
-    UPIPayment(double amt, string id): Payment(amt), upiID(id) {}
-    void pay() override {
-        if (upiID.find('@') == string::npos) throw runtime_error("Invalid UPI ID.");
-        cout << "UPI Payment of " << amount << " done via " << upiID << endl;
+    Seller(string u = "", string p = "") : User(u, p) {}
+
+    void addProduct(vector<Product> &products, const string &name, double price, int qty)
+    {
+        if (name.empty() || price < 0 || qty <= 0)
+        {
+            throw runtime_error("Invalid product details.");
+        }
+        products.push_back(Product(name, price, qty)); // auto ID
+        cout << "Product added successfully.\n";
+    }
+
+    void viewProducts(vector<Product> &products)
+    {
+        if (products.empty())
+        {
+            cout << "No products available.\n";
+            return;
+        }
+        cout << "\n=== Product List ===\n";
+        for (auto &p : products) p.showProduct();
     }
 };
 
-int main() {
-    vector<User> users;
+// BUYER CLASS
+class Buyer : public User
+{
+    Cart cart;
+
+public:
+    Buyer(string u = "", string p = "") : User(u, p) {}
+
+    void addToCart(vector<Product> &products, const string &pid, int qty)
+    {
+        cart.addToCart(products, pid, qty);
+    }
+
+    void viewCart()
+    {
+        cart.showCart();
+    }
+
+    void checkout()
+    {
+        if (cart.empty()) throw runtime_error("Cart is empty.");
+        cart.printBill(username);
+        cart.clear();
+    }
+};
+
+// MAIN
+int main()
+{
     vector<Product> products;
+    vector<Seller> sellers;
+    vector<Buyer> buyers;
 
-    int mainChoice;
-    string uname, pass;
+    sellers.push_back(Seller("seller1", "pass"));
+    buyers.push_back(Buyer("buyer1", "123"));
 
-    while (true) {
-        cout << "\n=== Welcome to E-Commerce ===\n";
-        cout << "1. Create Account\n2. Login\n3. Exit\nChoice: ";
-        if (!(cin >> mainChoice)) break;
+    while (true)
+    {
+        cout << "\n1. Seller Login\n2. Buyer Login\n3. Exit\nChoice: ";
+        int ch;
+        cin >> ch;
+        if (ch == 3) break;
 
-        if (mainChoice == 1) {
-            string role;
-            cout << "Enter username: "; cin >> uname;
-            cout << "Enter password: "; cin >> pass;
-            cout << "Role (buyer/seller): "; cin >> role;
-            if (role!="buyer" && role!="seller") { cout << "Invalid role.\n"; continue; }
-            users.push_back(User(uname, pass, role));
-            cout << "Account created.\n";
-        }
-        else if (mainChoice == 2) {
-            cout << "Username: "; cin >> uname;
-            cout << "Password: "; cin >> pass;
-            User *logged=nullptr;
-            for (auto &u: users) {
-                if (u.getUsername()==uname && u.getPassword()==pass) { logged=&u; break; }
+        string u, p;
+        cout << "Username: ";
+        cin >> u;
+        cout << "Password: ";
+        cin >> p;
+
+        if (ch == 1) // seller login
+        {
+            bool loggedIn = false;
+            for (auto &s : sellers)
+            {
+                if (s.login(u, p))
+                {
+                    loggedIn = true;
+                    cout << "Seller logged in.\n";
+                    int c;
+                    do
+                    {
+                        cout << "\n1.Add Product\n2.View Products\n3.Logout\nChoice: ";
+                        cin >> c;
+                        if (c == 1)
+                        {
+                            string n;
+                            double pr;
+                            int q;
+                            cout << "Enter name price qty: ";
+                            cin >> n >> pr >> q;
+                            try
+                            {
+                                s.addProduct(products, n, pr, q);
+                            }
+                            catch (exception &e)
+                            {
+                                cout << e.what() << endl;
+                            }
+                        }
+                        else if (c == 2)
+                        {
+                            s.viewProducts(products);
+                        }
+                    } while (c != 3);
+                }
             }
-            if (!logged) { cout << "Invalid login.\n"; continue; }
-
-            cout << "Welcome " << uname << " (" << logged->getRole() << ")\n";
-
-            if (logged->getRole()=="buyer") {
-                Buyer b(uname,pass);
-                Cart cart;
-                int c;
-                do {
-                    cout << "\n=== Buyer Menu ===\n1.View Products\n2.Add to Cart\n3.View Cart\n4.Print Bill\n5.Place Order\n6.Logout\nChoice: ";
-                    cin >> c;
-                    if (c==1) b.viewProducts(products);
-                    else if (c==2) {
-                        string id; int q;
-                        cout<<"Enter product ID: ";cin>>id;
-                        cout<<"Quantity: ";cin>>q;
-                        try { cart.addToCart(products,id,q);} catch(exception &e){cout<<e.what()<<endl;}
-                    }
-                    else if (c==3) cart.showCart();
-                    else if (c==4) try { cart.printBill(uname);} catch(exception&e){cout<<e.what()<<endl;}
-                    else if (c==5) {
-                        if (cart.empty()) {cout<<"Cart empty.\n"; continue;}
-                        cart.printBill(uname);
-                        cout<<"Choose payment: 1.Credit Card 2.UPI\n";int p;cin>>p;
-                        double amt=cart.totalAmount();
-                        try {
-                            if (p==1) {string card; cout<<"Card: ";cin>>card; CreditCardPayment cc(amt,card);cc.pay();}
-                            else if (p==2){string id; cout<<"UPI: ";cin>>id; UPIPayment up(amt,id);up.pay();}
-                            else {cout<<"Invalid.\n";continue;}
-                            cout<<"Order placed!\n"; cart.clear();
-                        } catch(exception&e){cout<<e.what()<<endl;}
-                    }
-                } while (c!=6);
-            } else {
-                Seller s(uname,pass);
-                int c;
-                do {
-                    cout << "\n=== Seller Menu ===\n1.Add Product\n2.View Products\n3.Logout\nChoice: ";
-                    cin >> c;
-                    if (c==1) {
-                        string id,n;double p;int q;
-                        cout<<"Enter id name price qty: ";cin>>id>>n>>p>>q;
-                        try{s.addProduct(products,id,n,p,q);}catch(exception&e){cout<<e.what()<<endl;}
-                    } else if (c==2) s.viewProducts(products);
-                } while (c!=3);
-            }
+            if (!loggedIn) cout << "Invalid login.\n";
         }
-        else if (mainChoice == 3) { cout << "Goodbye!\n"; break; }
+        else if (ch == 2) // buyer login
+        {
+            bool loggedIn = false;
+            for (auto &b : buyers)
+            {
+                if (b.login(u, p))
+                {
+                    loggedIn = true;
+                    cout << "Buyer logged in.\n";
+                    int c;
+                    do
+                    {
+                        cout << "\n1.View Products\n2.Add to Cart\n3.View Cart\n4.Checkout\n5.Logout\nChoice: ";
+                        cin >> c;
+                        if (c == 1)
+                        {
+                            if (products.empty()) cout << "No products.\n";
+                            else
+                            {
+                                cout << "\n=== Product List ===\n";
+                                for (auto &p : products) p.showProduct();
+                            }
+                        }
+                        else if (c == 2)
+                        {
+                            string pid;
+                            int qty;
+                            cout << "Enter product ID and qty: ";
+                            cin >> pid >> qty;
+                            try
+                            {
+                                b.addToCart(products, pid, qty);
+                            }
+                            catch (exception &e)
+                            {
+                                cout << e.what() << endl;
+                            }
+                        }
+                        else if (c == 3)
+                        {
+                            b.viewCart();
+                        }
+                        else if (c == 4)
+                        {
+                            try
+                            {
+                                b.checkout();
+                            }
+                            catch (exception &e)
+                            {
+                                cout << e.what() << endl;
+                            }
+                        }
+                    } while (c != 5);
+                }
+            }
+            if (!loggedIn) cout << "Invalid login.\n";
+        }
     }
     return 0;
 }
-
