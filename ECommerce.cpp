@@ -133,19 +133,30 @@ public:
 class User
 {
 protected:
+    
     string username;
     string password;
 
 public:
-    User(string u = "", string p = "") : username(u), password(p) {}
+    static int userid;
+    User(string u = "", string p = "") {
+        userid++;
+        username=to_string(userid)+u;
+        password=p; 
+        cout<<"Created an account Successfully!!"<<endl;
+        cout<<"Your username is "<<username<<endl;
+    }
 
-    string getUsername() { return username; }
+    string getUsername() { 
+        return username; 
+    }
 
     bool login(string u, string p)
     {
         return (username == u && password == p);
     }
 };
+int User::userid=0;
 
 // SELLER CLASS
 class Seller : public User
