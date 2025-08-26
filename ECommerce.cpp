@@ -7,13 +7,13 @@ using namespace std;
 // PRODUCT CLASS
 class Product
 {
+public:
     static int index;
     string productID;
     string name;
     double price;
     int stock;
 
-public:
     Product(string n = "", double p = 0, int s = 0)
     {
         index += 1;
@@ -22,13 +22,6 @@ public:
         price = p;
         stock = s;
     }
-
-    string getID() { return productID; }
-    string getName() { return name; }
-    double getPrice() { return price; }
-    int getStock() { return stock; }
-
-    void setStock(int s) { stock = s; }
 
     void showProduct()
     {
@@ -44,10 +37,8 @@ int Product::index = 0;
 // CART CLASS
 class Cart
 {
-    vector<string> productIDs;
-    vector<string> names;
-    vector<double> prices;
-    vector<int> quantities;
+    vector<Product*>products_in_cart;
+    vector <int> quantities;
 
 public:
     void addToCart(vector<Product> &products, const string &pid, int qty)
@@ -59,38 +50,38 @@ public:
 
         int idx = -1;
         for (size_t i = 0; i < products.size(); i++)
-            if (products[i].getID() == pid)
+            if (products[i].productID == pid)
             {
                 idx = i;
                 break;
             }
 
-        if (idx == -1) throw runtime_error("Product not found.");
-        if (products[idx].getStock() < qty) throw runtime_error("Insufficient stock.");
+        if (idx == -1) throw runtime_error("Product not found!");
+        if (products[idx].stock < qty) {
+            throw runtime_error("Insufficient stock!!");
+        }
 
-        products[idx].setStock(products[idx].getStock() - qty);
-
-        productIDs.push_back(products[idx].getID());
-        names.push_back(products[idx].getName());
-        prices.push_back(products[idx].getPrice());
+        products[idx].stock=(products[idx].stock - qty);
         quantities.push_back(qty);
 
-        cout << names.back() << " x" << qty << " added to cart.\n";
+        products_in_cart.push_back(&products[idx]);
+        
+        cout << products_in_cart.back()->name << " x" << qty << " Added to cart!\n";
     }
 
     void showCart()
     {
-        if (productIDs.empty())
+        if (products_in_cart.empty())
         {
-            cout << "Cart is empty.\n";
+            cout << "Cart is empty!\n";
             return;
         }
         cout << "\n=== Cart Items ===\n";
-        for (size_t i = 0; i < productIDs.size(); i++)
+        for (size_t i = 0; i < products_in_cart.size(); i++)
         {
-            cout << "ID: " << productIDs[i]
-                 << " | " << names[i]
-                 << " | Price: " << prices[i]
+            cout << "ID: " << products_in_cart[i]->productID
+                 << " | Name: " << products_in_cart[i]->name
+                 << " | Price: " << products_in_cart[i]->price
                  << " | Qty: " << quantities[i] << endl;
         }
     }
@@ -98,31 +89,31 @@ public:
     double totalAmount()
     {
         double t = 0;
-        for (size_t i = 0; i < prices.size(); i++)
-            t += prices[i] * quantities[i];
+        for (size_t i = 0; i < products_in_cart.size(); i++)
+            t += products_in_cart[i]->price * quantities[i];
         return t;
     }
 
-    bool empty() const { return productIDs.empty(); }
+    bool empty() const {
+        return products_in_cart.empty(); 
+    }
 
     void clear()
     {
-        productIDs.clear();
-        names.clear();
-        prices.clear();
+        products_in_cart.clear();
         quantities.clear();
     }
 
     void printBill(const string &buyer)
     {
-        if (productIDs.empty()) throw runtime_error("Cart empty.");
+        if (products_in_cart.empty()) throw runtime_error("Cart empty!");
         cout << "\n----- BILL for " << buyer << " -----\n";
         double total = 0;
-        for (size_t i = 0; i < productIDs.size(); i++)
+        for (size_t i = 0; i < products_in_cart.size(); i++)
         {
-            double sub = prices[i] * quantities[i];
-            cout << names[i] << " | " << quantities[i]
-                 << " x " << prices[i] << " = " << sub << endl;
+            double sub = products_in_cart[i]->price * quantities[i];
+            cout << products_in_cart[i]->name << " | " << quantities[i]
+                 << " x " << products_in_cart[i]->price << " = " << sub << endl;
             total += sub;
         }
         cout << "---------------------\nTotal: " << total << endl;
@@ -133,9 +124,9 @@ public:
 class User
 {
 protected:
-    
     string username;
     string password;
+    bool loggedIn; // added
 
 public:
     static int userid;
@@ -143,6 +134,7 @@ public:
         userid++;
         username=to_string(userid)+u;
         password=p; 
+        loggedIn=false;
         cout<<"Created an account Successfully!!"<<endl;
         cout<<"Your username is "<<username<<endl;
     }
@@ -153,7 +145,22 @@ public:
 
     bool login(string u, string p)
     {
-        return (username == u && password == p);
+        if (username == u && password == p) {
+            loggedIn = true;
+            return true;
+        }
+        return false;
+    }
+
+    void logout() {
+        if (loggedIn) {
+            loggedIn = false;
+            cout << username << " logged out.\n";
+        }
+    }
+
+    bool isLoggedIn() const {
+        return loggedIn;
     }
 };
 int User::userid=0;
@@ -168,17 +175,17 @@ public:
     {
         if (name.empty() || price < 0 || qty <= 0)
         {
-            throw runtime_error("Invalid product details.");
+            throw runtime_error("Invalid product details!!");
         }
         products.push_back(Product(name, price, qty)); // auto ID
-        cout << "Product added successfully.\n";
+        cout << "Product added successfully!\n";
     }
 
     void viewProducts(vector<Product> &products)
     {
         if (products.empty())
         {
-            cout << "No products available.\n";
+            cout << "No products available!\n";
             return;
         }
         cout << "\n=== Product List ===\n";
@@ -206,7 +213,7 @@ public:
 
     void checkout()
     {
-        if (cart.empty()) throw runtime_error("Cart is empty.");
+        if (cart.empty()) throw runtime_error("Cart is empty!");
         cart.printBill(username);
         cart.clear();
     }
@@ -216,6 +223,7 @@ public:
 int main()
 {
     vector<Product> products;
+    products.reserve(1000);
     vector<Seller> sellers;
     vector<Buyer> buyers;
 
@@ -237,15 +245,15 @@ int main()
 
         if (ch == 1) // seller login
         {
-            bool loggedIn = false;
+            bool valid = false;
             for (auto &s : sellers)
             {
                 if (s.login(u, p))
                 {
-                    loggedIn = true;
+                    valid = true;
                     cout << "Seller logged in.\n";
                     int c;
-                    do
+                    while (s.isLoggedIn())
                     {
                         cout << "\n1.Add Product\n2.View Products\n3.Logout\nChoice: ";
                         cin >> c;
@@ -269,22 +277,26 @@ int main()
                         {
                             s.viewProducts(products);
                         }
-                    } while (c != 3);
+                        else if (c == 3)
+                        {
+                            s.logout();
+                        }
+                    }
                 }
             }
-            if (!loggedIn) cout << "Invalid login.\n";
+            if (!valid) cout << "Invalid login.\n";
         }
         else if (ch == 2) // buyer login
         {
-            bool loggedIn = false;
+            bool valid = false;
             for (auto &b : buyers)
             {
                 if (b.login(u, p))
                 {
-                    loggedIn = true;
+                    valid = true;
                     cout << "Buyer logged in.\n";
                     int c;
-                    do
+                    while (b.isLoggedIn())
                     {
                         cout << "\n1.View Products\n2.Add to Cart\n3.View Cart\n4.Checkout\n5.Logout\nChoice: ";
                         cin >> c;
@@ -327,10 +339,14 @@ int main()
                                 cout << e.what() << endl;
                             }
                         }
-                    } while (c != 5);
+                        else if (c == 5)
+                        {
+                            b.logout();
+                        }
+                    }
                 }
             }
-            if (!loggedIn) cout << "Invalid login.\n";
+            if (!valid) cout << "Invalid login.\n";
         }
     }
     return 0;
