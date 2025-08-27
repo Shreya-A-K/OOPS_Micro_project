@@ -228,7 +228,25 @@ int main()
     vector<Buyer> buyers;
 
     while (true)
-    {
+    {   int choice;
+        cout<<"\n1. New User \n2. Existing user?: ";
+        cin>>choice;
+        if (choice==1){
+            int type;
+            cout << "Register as 1.Seller 2.Buyer: ";
+            cin >> type;
+            string em;
+            string pw;
+            cout<<"Enter your emailID:";
+            cin>>em;
+            cout<<"Enter your password!:";
+            cin>>pw;
+
+            if(type == 1)
+                sellers.push_back(Seller(em, pw));
+            else if(type == 2)
+                buyers.push_back(Buyer(em, pw));
+        }
         cout << "\n1. Seller Login\n2. Buyer Login\n3. Exit\nChoice: ";
         int ch;
         cin >> ch;
