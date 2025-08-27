@@ -227,9 +227,6 @@ int main()
     vector<Seller> sellers;
     vector<Buyer> buyers;
 
-    sellers.push_back(Seller("seller1", "pass"));
-    buyers.push_back(Buyer("buyer1", "123"));
-
     while (true)
     {
         cout << "\n1. Seller Login\n2. Buyer Login\n3. Exit\nChoice: ";
